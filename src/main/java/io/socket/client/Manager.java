@@ -8,6 +8,7 @@ import io.socket.thread.EventThread;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,6 +95,7 @@ public class Manager extends Emitter {
     private List<Packet> packetBuffer;
     private Queue<On.Handle> subs;
     private Options opts;
+    private InetSocketAddress remoteAddress;
     /*package*/ io.socket.engineio.client.Socket engine;
     private Parser.Encoder encoder;
     private Parser.Decoder decoder;
@@ -593,6 +595,10 @@ public class Manager extends Emitter {
         this.emitAll(EVENT_RECONNECT, attempts);
     }
 
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
 
     public static interface OpenCallback {
 
@@ -600,10 +606,11 @@ public class Manager extends Emitter {
     }
 
 
-    private static class Engine extends io.socket.engineio.client.Socket {
+    private class Engine extends io.socket.engineio.client.Socket {
 
         Engine(URI uri, Options opts) {
             super(uri, opts);
+            Manager.this.remoteAddress = new InetSocketAddress(opts.hostname, opts.port);
         }
     }
 
