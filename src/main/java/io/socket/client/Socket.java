@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -487,6 +488,29 @@ public class Socket extends Emitter {
             data[i] = JSONObject.NULL.equals(v) ? null : v;
         }
         return data;
+    }
+
+    private void procCallback(String event, Listener fn){
+        if(fn instanceof Callback){
+            Session session = new Session(event, this);
+            ((Callback) fn).setSession(session);
+        }
+    }
+
+    public InetSocketAddress getRemoteAddress(){
+        return io.getRemoteAddress();
+    }
+
+    @Override
+    public Emitter on(String event, Listener fn) {
+        procCallback(event, fn);
+        return super.on(event, fn);
+    }
+
+    @Override
+    public Emitter once(String event, Listener fn) {
+        procCallback(event, fn);
+        return super.once(event, fn);
     }
 }
 
